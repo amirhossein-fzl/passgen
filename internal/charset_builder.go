@@ -15,6 +15,32 @@ func NewCharsetBuilder() *CharsetBuilder {
 	return &CharsetBuilder{}
 }
 
+func NewCharsetBuilderFromPasswordGeneratorOptions(options PasswordGeneratorOptions) *CharsetBuilder {
+	charset_builder := NewCharsetBuilder()
+
+	if options.Uppercase {
+		charset_builder.WithUppercase()
+	}
+
+	if options.Lowercase {
+		charset_builder.WithLowercase()
+	}
+
+	if options.Numbers {
+		charset_builder.WithNumbers()
+	}
+
+	if options.Symbols {
+		charset_builder.WithSymbols()
+	}
+
+	if custom_character := options.Custom; custom_character != "" {
+		charset_builder.WithCustom(custom_character)
+	}
+
+	return charset_builder
+}
+
 func (c *CharsetBuilder) Characters() string {
 	return c.characters
 }

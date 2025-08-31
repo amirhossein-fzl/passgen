@@ -183,6 +183,28 @@ func TestConstants(t *testing.T) {
 	})
 }
 
+func TestNewCharsetBuilderFromPasswordGeneratorOptions(t *testing.T) {
+	options := PasswordGeneratorOptions{
+		Lowercase: true,
+		Uppercase: true,
+		Symbols:   true,
+		Numbers:   true,
+		Custom:    customChars,
+	}
+
+	charset := NewCharsetBuilderFromPasswordGeneratorOptions(options)
+	chars := charset.Characters()
+	expectedLength := len(UppercaseChars) + len(LowercaseChars) + len(NumberChars) + len(SymbolChars) + len(customChars)
+	assert.Len(t, chars, expectedLength)
+	chars_byte := []byte(chars)
+
+	assert.Subset(t, chars_byte, []byte(UppercaseChars))
+	assert.Subset(t, chars_byte, []byte(LowercaseChars))
+	assert.Subset(t, chars_byte, []byte(NumberChars))
+	assert.Subset(t, chars_byte, []byte(SymbolChars))
+	assert.Subset(t, chars_byte, []byte(customChars))
+}
+
 func BenchmarkCharsetBuilderSingleType(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		builder := NewCharsetBuilder()
