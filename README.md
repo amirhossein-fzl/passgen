@@ -17,7 +17,7 @@ A secure, customizable command-line password generator built with Go. Generate s
 ```bash
 git clone https://github.com/amirhossein-fzl/passgen.git
 cd passgen
-go build -o passgen cmd/passgen
+go build -o passgen cmd/main.go
 ```
 
 ## Quick Start
@@ -163,7 +163,7 @@ Your contributions, no matter how big or small, genuinely make me happy and help
 
 ## License
 
-This project is licensed under the GPL License - see the [LICENSE](?tab=GPL-3.0-1-ov-file) file for details.
+This project is licensed under the GPL License - see the [LICENSE](https://github.com/amirhossein-fzl/passgen?tab=GPL-3.0-1-ov-file) file for details.
 
 ## Support
 
