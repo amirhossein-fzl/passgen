@@ -582,6 +582,17 @@ func TestInitializeCommandLineValidationErrors(t *testing.T) {
 	}
 }
 
+func TestCommandLineInitializeCommandLine(t *testing.T) {
+	t.Run("invalid flags", func(t *testing.T) {
+		os.Args = []string{"passgen", "--invalid-arg"}
+
+		cmd, err := InitializeCommandLine()
+
+		assert.Error(t, err)
+		assert.Nil(t, cmd)
+	})
+}
+
 func TestCommandLineParserParseInvalidFlags(t *testing.T) {
 	parser := NewCommandLineParser()
 

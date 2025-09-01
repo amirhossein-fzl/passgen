@@ -61,7 +61,11 @@ func (p *CommandLineParser) Parse(args []string) (*CommandLineOptions, error) {
 
 	p.flagSet.Usage = p.printUsage
 
-	p.flagSet.Parse(args)
+	err := p.flagSet.Parse(args)
+
+	if err != nil {
+		return nil, err
+	}
 
 	options := &CommandLineOptions{
 		length:       *length,
@@ -83,7 +87,9 @@ func InitializeCommandLine() (*CommandLineOptions, error) {
 	args := os.Args[1:]
 
 	options, err := parser.Parse(args)
-	if err != nil {
+	if err == flag.ErrHelp {
+		os.Exit(0)
+	} else if err != nil {
 		return nil, err
 	}
 
@@ -99,6 +105,7 @@ func (p *CommandLineParser) printUsage() {
 	fmt.Fprintf(os.Stderr, "A secure password generator with customizable options.\n\n")
 	fmt.Fprintf(os.Stderr, "Options:\n")
 
+	fmt.Fprintf(os.Stderr, "  -h, --help\t\t\t\tDisplay the help message.\n")
 	fmt.Fprintf(os.Stderr, "  -l, --length <length>\t\t\tPassword length (default: 12)\n")
 	fmt.Fprintf(os.Stderr, "  -L, --lowercase\t\t\tInclude lowercase letters (a-z) (default: true)\n")
 	fmt.Fprintf(os.Stderr, "  -U, --uppercase\t\t\tInclude uppercase letters (A-Z) (default: true)\n")
