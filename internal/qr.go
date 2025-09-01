@@ -2,6 +2,7 @@ package internal
 
 import (
 	"errors"
+	"runtime"
 	"strings"
 
 	"github.com/skip2/go-qrcode"
@@ -36,6 +37,10 @@ func (qr *QrCode) GenerateAnisUtf8i() string {
 
 	white := "\033[40;37;1m"
 	reset := "\033[0m"
+
+	if runtime.GOOS == "windows" {
+		white, reset = "", ""
+	}
 
 	empty := " "
 	lowhalf := "\342\226\204"
