@@ -21,11 +21,24 @@ func main() {
 		os.Exit(64)
 	}
 
-	password, err := internal.GeneratePassword(*cmd.ToPasswordGeneratorOptions())
+	options := *cmd.ToPasswordGeneratorOptions()
+	password, err := internal.GeneratePassword(options)
 
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(74)
+	}
+
+	if options.QrCode {
+		qrcode, err := internal.NewQrCode(password, 1)
+
+		if err != nil {
+			fmt.Println(err.Error())
+			os.Exit(74)
+		}
+
+		fmt.Println(qrcode.GenerateAnisUtf8i())
+		fmt.Print("Password: ")
 	}
 
 	fmt.Println(password)
