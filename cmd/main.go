@@ -1,9 +1,32 @@
 package main
 
 import (
+	"amirhossein-fzl/passgen/internal"
 	"fmt"
+	"os"
 )
 
 func main() {
-	fmt.Println("passgen is a simple CLI tool to generate secure, random passwords for your applications and accounts.")
+	cmd, err := internal.InitializeCommandLine()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(64)
+	}
+
+	err = cmd.Validate()
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(64)
+	}
+
+	password, err := internal.GeneratePassword(*cmd.ToPasswordGeneratorOptions())
+
+	if err != nil {
+		fmt.Println(err.Error())
+		os.Exit(74)
+	}
+
+	fmt.Println(password)
 }
