@@ -4,9 +4,21 @@ import (
 	"amirhossein-fzl/passgen/internal"
 	"fmt"
 	"os"
+	"slices"
+)
+
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
 )
 
 func main() {
+	if slices.Contains(os.Args, "-v") || slices.Contains(os.Args, "--version") {
+		fmt.Printf("passgen version %s (%s) released at %s\n", version, commit, date)
+		os.Exit(0)
+	}
+
 	cmd, err := internal.InitializeCommandLine()
 
 	if err != nil {

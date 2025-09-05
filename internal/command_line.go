@@ -114,6 +114,7 @@ func (p *CommandLineParser) printUsage() {
 	fmt.Fprintf(os.Stderr, "  -C, --custom <custom>\t\t\tCustom character set to use\n")
 	fmt.Fprintf(os.Stderr, "  -a, --avoid-repeats <avoid-repeats>\tNumber of last characters that shouldn't repeat (default: 1)\n")
 	fmt.Fprintf(os.Stderr, "  -q, --qr\t\t\t\tGenerate QR code output in ANSI UTF-8 format\n")
+	fmt.Fprintf(os.Stderr, "  -v, --version\t\t\t\tGet version\n")
 
 	fmt.Fprintf(os.Stderr, "\nExamples:\n")
 	fmt.Fprintf(os.Stderr, "  %s -l 16 --uppercase --numbers --symbols \n", filepath.Base(os.Args[0]))
