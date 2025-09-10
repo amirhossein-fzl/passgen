@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 const (
@@ -120,6 +121,23 @@ func (p *CommandLineParser) printUsage() {
 	fmt.Fprintf(os.Stderr, "  %s -l 16 --uppercase --numbers --symbols \n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "  %s --length 12 --uppercase --numbers\n", filepath.Base(os.Args[0]))
 	fmt.Fprintf(os.Stderr, "  %s -l 20 --custom \"abcdef123456!@#\"\n", filepath.Base(os.Args[0]))
+}
+
+func PrintVersion(version, commit, date string) {
+	shortCommitHash := commit
+	buildDate := date
+
+	if len(commit) >= 9 {
+		shortCommitHash = commit[:9]
+	}
+
+	dateTime, err := time.Parse(time.RFC3339, date)
+
+	if err == nil {
+		buildDate = dateTime.Format(time.DateOnly)
+	}
+
+	fmt.Printf("passgen version %s (%s) released at %s\n", version, shortCommitHash, buildDate)
 }
 
 func (c *CommandLineOptions) ToPasswordGeneratorOptions() *PasswordGeneratorOptions {

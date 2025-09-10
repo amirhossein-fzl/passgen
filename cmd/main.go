@@ -15,7 +15,7 @@ var (
 
 func main() {
 	if slices.Contains(os.Args, "-v") || slices.Contains(os.Args, "--version") {
-		fmt.Printf("passgen version %s (%s) released at %s\n", version, commit, date)
+		internal.PrintVersion(version, commit, date)
 		os.Exit(0)
 	}
 

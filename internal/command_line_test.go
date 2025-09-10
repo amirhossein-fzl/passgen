@@ -25,6 +25,21 @@ func captureStderr(fn func()) string {
 	return buf.String()
 }
 
+func captureStdout(fn func()) string {
+	oldStdout := os.Stdout
+	r, w, _ := os.Pipe()
+	os.Stdout = w
+
+	fn()
+
+	w.Close()
+	os.Stdout = oldStdout
+
+	var buf bytes.Buffer
+	io.Copy(&buf, r)
+	return buf.String()
+}
+
 func TestNewCommandLineParser(t *testing.T) {
 	parser := NewCommandLineParser()
 
@@ -657,4 +672,21 @@ func BenchmarkGeneratePasswordWitAllCharset(b *testing.B) {
 	for b.Loop() {
 		GeneratePassword(*cmd.ToPasswordGeneratorOptions())
 	}
+}
+
+func TestPrintVersion(t *testing.T) {
+	var (
+		version = "0.0.1"
+		commit  = "d027189179c1dc87a54802ec5cd48a8585b125351e2025b44e6c5e126edf6419"
+		date    = "2025-09-05T00:00:00Z"
+	)
+
+	output := captureStdout(func() {
+		PrintVersion(version, commit, date)
+	})
+
+	assert.NotEmpty(t, output)
+	assert.Contains(t, output, version)
+	assert.Contains(t, output, commit[:9])
+	assert.Contains(t, output, "2025-09-05")
 }
