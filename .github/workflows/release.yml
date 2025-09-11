@@ -1,0 +1,131 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Download dependencies
+      run: go mod download
+
+    - name: Run tests
+      run: |
+        echo "Running tests..."
+        go test -v ./...
+
+    - name: Vet code
+      run: |
+        echo "Running go vet..."
+        go vet ./...
+
+    - name: Check formatting
+      run: |
+        echo "Checking code formatting..."
+        if [ "$(gofmt -s -l . | wc -l)" -gt 0 ]; then
+          echo "Code is not properly formatted. Run 'gofmt -s -w .'"
+          gofmt -s -l .
+          exit 1
+        fi
+
+  build-and-release:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '1.25'
+
+    - name: Install Just
+      uses: extractions/setup-just@v2
+
+    - name: Cache Go modules
+      uses: actions/cache@v4
+      with:
+        path: ~/go/pkg/mod
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+
+    - name: Build release artifacts
+      run: just release
+
+    - name: Verify build artifacts
+      run: |
+        echo "Verifying build artifacts..."
+        ls -la dist/
+        
+        # Check if expected files exist
+        if [ ! -f "dist/checksums.txt" ]; then
+          echo "❌ checksums.txt not found!"
+          exit 1
+        fi
+        
+        # Count archives
+        TAR_COUNT=$(ls dist/*.tar.gz 2>/dev/null | wc -l)
+        ZIP_COUNT=$(ls dist/*.zip 2>/dev/null | wc -l)
+        
+        echo "Found $TAR_COUNT tar.gz files and $ZIP_COUNT zip files"
+        
+        if [ "$TAR_COUNT" -eq 0 ] && [ "$ZIP_COUNT" -eq 0 ]; then
+          echo "❌ No archive files found!"
+          exit 1
+        fi
+        
+        echo "✅ Build artifacts verified"
+
+    - name: Create Release
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        prerelease: ${{ contains(github.ref_name, 'alpha') || contains(github.ref_name, 'beta') || contains(github.ref_name, 'rc') }}
+        generate_release_notes: false
+        body: ""
+        files: |
+          dist/*.tar.gz
+          dist/*.zip
+          dist/checksums.txt
+          
+        fail_on_unmatched_files: true
+        
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Release notification
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "✅ Release ${{ github.ref_name }} created successfully!"
+          echo "🔗 https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+        else
+          echo "❌ Release creation failed!"
+        fi
